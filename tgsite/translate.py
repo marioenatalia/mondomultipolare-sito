@@ -17,7 +17,7 @@ import urllib.request
 from datetime import datetime, timezone
 
 from . import store
-from .config import Config
+from .config import Config, env
 from .i18n import LINGUE, NOMI_IT
 
 API_URL = "https://api.anthropic.com/v1/messages"
@@ -53,7 +53,7 @@ dove "titolo" è il titolo tradotto e "html" è il corpo tradotto con i suoi tag
 
 
 def _chiave() -> str:
-    chiave = os.getenv("ANTHROPIC_API_KEY", "").strip()
+    chiave = env("ANTHROPIC_API_KEY")
     if not chiave:
         raise SystemExit(
             "Manca la chiave per la traduzione.\n"
@@ -156,7 +156,7 @@ def traduci_articoli(cfg: Config, conn=None, simulato: bool = False, solo: list[
     lingue = solo or [l for l in (cfg["lingue"]["attive"] or []) if l != cfg["lingue"]["sorgente"]]
     modello = cfg["lingue"].get("modello") or MODELLI_RIPIEGO[0]
 
-    if not simulato and not os.getenv("ANTHROPIC_API_KEY", "").strip():
+    if not simulato and not env("ANTHROPIC_API_KEY"):
         print("  traduzioni saltate: manca ANTHROPIC_API_KEY nel file .env")
         if proprio:
             conn.close()

@@ -40,6 +40,26 @@ def _parametri_avvio(creds: dict) -> dict:
     return avvio
 
 
+async def _collega(client, creds: dict) -> None:
+    """Collega il client a Telegram.
+
+    Se la sessione è già autorizzata — è il caso della sessione portabile
+    (TG_SESSION_STRING) usata su GitHub Actions — non servono né il numero di
+    telefono né il codice: basta connettersi. Il login vero e proprio, con
+    telefono, codice ed eventuale password, serve solo al primo accesso.
+    """
+    await client.connect()
+    if await client.is_user_authorized():
+        return
+    if not creds.get("phone"):
+        raise SystemExit(
+            "La sessione Telegram non è valida o è scaduta.\n"
+            "Rigenerala con «GENERA SESSIONE CLOUD» e aggiorna il segreto "
+            "TG_SESSION_STRING su GitHub."
+        )
+    await client.start(**_parametri_avvio(creds))
+
+
 def _now() -> str:
     return datetime.now(timezone.utc).isoformat(timespec="seconds")
 
@@ -233,7 +253,7 @@ async def run_ingest(cfg: Config, watch: bool = False, limit: int | None = None,
     # in cloud (es. GitHub Actions) si usa una sessione "stringa" salvata nei segreti
     sessione = StringSession(creds["session_string"]) if creds["session_string"] else creds["session"]
     client = TelegramClient(sessione, creds["api_id"], creds["api_hash"])
-    await client.start(**_parametri_avvio(creds))
+    await _collega(client, creds)
     entity = await client.get_entity(channel)
     username = getattr(entity, "username", None)
     print(f"Canale collegato: {getattr(entity, 'title', channel)}")
@@ -321,7 +341,7 @@ async def _scarica_logo(cfg: Config) -> str | None:
     creds = telegram_credentials()
     sessione = StringSession(creds["session_string"]) if creds["session_string"] else creds["session"]
     client = TelegramClient(sessione, creds["api_id"], creds["api_hash"])
-    await client.start(**_parametri_avvio(creds))
+    await _collega(client, creds)
     entity = await client.get_entity(cfg["telegram"]["channel"])
 
     cartella = cfg.output_dir / "assets"

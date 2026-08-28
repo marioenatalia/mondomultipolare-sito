@@ -15,6 +15,8 @@ import re
 import sqlite3
 from pathlib import Path
 
+from .config import env
+
 SCHEMA_SQLITE = """
 CREATE TABLE IF NOT EXISTS posts (
     message_id   INTEGER PRIMARY KEY,
@@ -161,7 +163,7 @@ def connect(cfg_o_percorso) -> Archivio:
     sezione = cfg.get("database") or {}
     tipo = (sezione.get("tipo") or "sqlite").lower()
     if tipo in ("postgres", "postgresql", "neon"):
-        return _apri_postgres(os.getenv("DATABASE_URL", "").strip() or sezione.get("url", ""))
+        return _apri_postgres(env("DATABASE_URL") or sezione.get("url", ""))
     return _apri_sqlite(cfg.db_path)
 
 

@@ -74,6 +74,23 @@ DEFAULTS = {
 }
 
 
+def env(nome: str, predefinito: str = "") -> str:
+    """Valore di una variabile d'ambiente, tollerante agli errori di copia.
+
+    Se per sbaglio si incolla l'intera riga del file .env (per esempio
+    "DATABASE_URL=postgresql://...") il prefisso "NOME=" viene rimosso.
+    Toglie anche eventuali virgolette attorno al valore.
+    """
+    valore = os.getenv(nome, predefinito) or ""
+    valore = valore.strip()
+    prefisso = nome + "="
+    if valore.startswith(prefisso):
+        valore = valore[len(prefisso):].strip()
+    if len(valore) >= 2 and valore[0] == valore[-1] and valore[0] in "\"'":
+        valore = valore[1:-1].strip()
+    return valore
+
+
 def _merge(base: dict, over: dict) -> dict:
     out = dict(base)
     for key, value in (over or {}).items():
@@ -121,25 +138,25 @@ def load_config(path: str | os.PathLike | None = None) -> Config:
 
 def telegram_credentials() -> dict:
     load_dotenv(ROOT / ".env")
-    api_id = os.getenv("TG_API_ID", "").strip()
-    api_hash = os.getenv("TG_API_HASH", "").strip()
+    api_id = env("TG_API_ID")
+    api_hash = env("TG_API_HASH")
     if not api_id or not api_hash:
         raise SystemExit(
             "Credenziali Telegram mancanti.\n"
             "Crea il file .env partendo da .env.example e inserisci "
             "TG_API_ID e TG_API_HASH ottenuti su https://my.telegram.org"
         )
-    session = os.getenv("TG_SESSION", "data/sessione")
+    session = env("TG_SESSION", "data/sessione") or "data/sessione"
     session_path = Path(session)
     if not session_path.is_absolute():
         session_path = ROOT / session_path
     session_path.parent.mkdir(parents=True, exist_ok=True)
     return {
-        "session_string": os.getenv("TG_SESSION_STRING", "").strip() or None,
+        "session_string": env("TG_SESSION_STRING") or None,
         "api_id": int(api_id),
         "api_hash": api_hash,
-        "phone": os.getenv("TG_PHONE", "").strip() or None,
+        "phone": env("TG_PHONE") or None,
         # password della verifica in due passaggi: se non c'è, viene chiesta a video
-        "password": os.getenv("TG_PASSWORD", "").strip() or None,
+        "password": env("TG_PASSWORD") or None,
         "session": str(session_path),
     }

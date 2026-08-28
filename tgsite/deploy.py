@@ -18,7 +18,7 @@ from pathlib import Path
 from urllib.parse import urlparse
 
 from . import store
-from .config import ROOT, Config
+from .config import ROOT, Config, env
 
 
 def _firma(percorso: Path) -> str:
@@ -29,8 +29,8 @@ def _connetti(cfg: Config):
     dep = cfg.get("deploy") or {}
     tipo = (dep.get("tipo") or "nessuno").lower()
     host = dep.get("host", "")
-    utente = os.getenv("FTP_USER", "").strip()
-    password = os.getenv("FTP_PASSWORD", "").strip()
+    utente = env("FTP_USER")
+    password = env("FTP_PASSWORD")
     porta = int(dep.get("porta") or 21)
 
     if not host or not utente or not password:
