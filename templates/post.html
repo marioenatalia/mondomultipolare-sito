@@ -1,0 +1,141 @@
+{% extends "base.html" %}
+{% block title %}{{ post.title }} — {{ site.title }}{% endblock %}
+{% block description %}{{ post.excerpt }}{% endblock %}
+{% block canonical %}{{ post.url }}{% endblock %}
+{% block lingua_url scoped %}{{ post.alternative.get(l.codice, l.url) }}{% endblock %}
+{% block alternative %}
+{% for codice, indirizzo in post.alternative.items() %}
+<link rel="alternate" hreflang="{{ codice }}" href="{{ site.base_url }}{{ indirizzo }}">
+{% endfor %}
+{% endblock %}
+{% block og_title %}{{ post.title }}{% endblock %}
+{% block og_desc %}{{ post.excerpt }}{% endblock %}
+{% block og_type %}article{% endblock %}
+{% block og_image %}{% if post.cover %}<meta property="og:image" content="{{ site.base_url }}/{{ post.cover.path }}">{% endif %}{% endblock %}
+
+{% block content %}
+<script type="application/ld+json">
+{{ {
+  "@context": "https://schema.org",
+  "@type": "NewsArticle",
+  "headline": post.title,
+  "inLanguage": site.html_lang,
+  "datePublished": post.iso,
+  "description": post.excerpt,
+  "url": site.base_url ~ post.url,
+  "publisher": {"@type": "Organization", "name": site.title}
+} | tojson }}
+</script>
+
+<article class="articolo">
+  <header class="articolo__head wrap-stretto" data-reveal>
+    <div class="kicker kicker--center">
+      {% for x in post.temi %}<span class="kicker__tema">{{ x }}</span>{% endfor %}
+      <span>{{ post.date_it }} · {{ post.time_it }}</span>
+    </div>
+    <h1>{{ post.title }}</h1>
+    {% if post.occhiello %}<p class="articolo__occhiello">{{ post.occhiello }}</p>{% endif %}
+    <div class="articolo__meta">
+      <span>{{ post.reading_time }} {{ t.lettura }}</span>
+      <div class="condividi">
+        <a href="https://t.me/share/url?url={{ site.base_url }}{{ post.url }}&text={{ post.title|urlencode }}" target="_blank" rel="noopener">Telegram</a>
+        <a href="https://api.whatsapp.com/send?text={{ post.title|urlencode }}%20{{ site.base_url }}{{ post.url }}" target="_blank" rel="noopener">WhatsApp</a>
+        <button class="copia" data-url="{{ site.base_url }}{{ post.url }}" data-copiato="{{ t.copiato }}">{{ t.copia }}</button>
+      </div>
+    </div>
+  </header>
+
+  {% if site.lang != 'it' %}
+  <p class="avviso-traduzione wrap-stretto">
+    {{ t.traduzione_avviso }}
+    <a href="{{ post.originale_url }}" hreflang="it">{{ t.traduzione_originale }} ↗</a>
+  </p>
+  {% endif %}
+
+  {% if post.provenienza %}
+  <aside class="provenienza wrap-stretto" data-reveal>
+    <span class="provenienza__etichetta">{{ t[post.provenienza.etichetta or 'ripreso_da'] }}</span>
+    <span class="provenienza__nome">
+      {% set indirizzo = post.provenienza.sito_url or post.provenienza.canale_url %}
+      {% if indirizzo %}<a href="{{ indirizzo }}" target="_blank" rel="noopener">{{ post.provenienza.nome }}</a>
+      {% else %}{{ post.provenienza.nome }}{% endif %}
+    </span>
+    {% if post.provenienza.articolo_url %}
+    <a class="provenienza__link" href="{{ post.provenienza.articolo_url }}" target="_blank" rel="noopener">{{ t.leggi_sulla_fonte }} ↗</a>
+    {% elif post.provenienza.post_url %}
+    <a class="provenienza__link" href="{{ post.provenienza.post_url }}" target="_blank" rel="noopener">{{ t.post_originale }} ↗</a>
+    {% endif %}
+  </aside>
+  {% endif %}
+
+  {% if post.apertura_video %}
+  <figure class="articolo__cover" data-reveal>
+    <video src="/{{ post.apertura_video.path }}" poster="/{{ post.apertura_video.poster }}"
+           controls preload="none" playsinline></video>
+  </figure>
+  {% elif post.cover %}
+  <figure class="articolo__cover" data-reveal>
+    <img src="/{{ post.cover.path }}" alt="{{ post.title }}">
+  </figure>
+  {% endif %}
+
+  <div class="articolo__corpo wrap-stretto" data-reveal>
+    {{ post.html|safe }}
+
+    {% set altri = post.media|rejectattr('path', 'equalto', post.cover.path if post.cover else '')
+                             |rejectattr('path', 'equalto', post.apertura_video.path if post.apertura_video else '')|list %}
+    {% if altri %}
+    <div class="galleria">
+      {% for m in altri %}
+        {% if m.kind == 'photo' %}
+          <figure><img src="/{{ m.thumb or m.path }}" data-grande="/{{ m.path }}" alt="" loading="lazy"></figure>
+        {% elif m.kind == 'video' %}
+          <figure><video src="/{{ m.path }}" controls preload="metadata"></video></figure>
+        {% elif m.kind == 'audio' %}
+          <figure><audio src="/{{ m.path }}" controls></audio></figure>
+        {% else %}
+          <figure><a class="allegato" href="/{{ m.path }}" download>{{ m.kind }}</a></figure>
+        {% endif %}
+      {% endfor %}
+    </div>
+    {% endif %}
+
+    {% if post.fonti %}
+    <section class="fonti">
+      <h2>{{ t.fonti }}</h2>
+      <ul>
+        {% for f in post.fonti %}
+        <li><a href="{{ f.url }}" target="_blank" rel="noopener nofollow">{{ f.dominio }}</a></li>
+        {% endfor %}
+      </ul>
+    </section>
+    {% endif %}
+
+    {% if site.show_source_link and post.source %}
+    <p class="fonte">
+      <a href="{{ post.source }}" target="_blank" rel="noopener">{{ t.fonte_telegram|replace('{data}', post.date_it)|replace('{ora}', post.time_it) }}</a>
+    </p>
+    {% endif %}
+  </div>
+</article>
+
+<nav class="wrap-stretto salti">
+  {% if prev %}<a class="salti__prev" href="{{ prev.url }}"><span>← {{ t.precedente }}</span><strong>{{ prev.title }}</strong></a>{% else %}<span></span>{% endif %}
+  {% if next %}<a class="salti__next" href="{{ next.url }}"><span>{{ t.successivo }} →</span><strong>{{ next.title }}</strong></a>{% endif %}
+</nav>
+
+{% if correlati %}
+<section class="wrap correlati" data-reveal>
+  <h2 class="rubrica rubrica--wide">{{ t.continua }}</h2>
+  <div class="trittico">
+    {% for p in correlati %}
+    <article class="card">
+      {% if p.cover %}<a class="card__media" href="{{ p.url }}"><img src="/{{ p.cover.thumb or p.cover.path }}" alt="{{ p.title }}" loading="lazy"></a>{% endif %}
+      <div class="kicker">{% if p.temi %}<span class="kicker__tema">{{ p.temi[0] }}</span>{% endif %}<span>{{ p.date_it }}</span></div>
+      <h3 class="card__title"><a href="{{ p.url }}">{{ p.title }}</a></h3>
+    </article>
+    {% endfor %}
+  </div>
+</section>
+{% endif %}
+{% endblock %}

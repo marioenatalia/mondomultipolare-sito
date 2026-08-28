@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom" xmlns:content="http://purl.org/rss/1.0/modules/content/">
+  <channel>
+    <title>{{ site.title }}{% if site.lang != 'it' %} ({{ site.lang|upper }}){% endif %}</title>
+    <link>{{ site.base_url }}{{ site.prefisso }}/</link>
+    <description>{{ site.tagline }}</description>
+    <language>{{ site.html_lang }}</language>
+    <lastBuildDate>{{ site.updated_iso }}</lastBuildDate>
+    <atom:link href="{{ site.base_url }}{{ site.prefisso }}/feed.xml" rel="self" type="application/rss+xml"/>
+    {% for p in posts %}
+    <item>
+      <title>{{ p.title }}</title>
+      <link>{{ site.base_url }}{{ p.url }}</link>
+      <guid isPermaLink="true">{{ site.base_url }}{{ p.url }}</guid>
+      <pubDate>{{ p.rfc822 }}</pubDate>
+      <description>{{ p.excerpt }}</description>
+      {% if p.provenienza %}<source url="{{ p.provenienza.post_url or p.provenienza.canale_url or site.base_url }}">{{ p.provenienza.nome }}</source>{% endif %}
+      <content:encoded><![CDATA[{{ p.html|safe }}]]></content:encoded>
+    </item>
+    {% endfor %}
+  </channel>
+</rss>

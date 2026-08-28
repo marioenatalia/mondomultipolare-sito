@@ -1,0 +1,30 @@
+{% extends "base.html" %}
+{% block title %}{{ t.cerca }} — {{ site.title }}{% endblock %}
+{% block canonical %}{{ site.prefisso }}/cerca.html{% endblock %}
+
+{% block content %}
+<section class="wrap pagina-ricerca">
+  <h1 class="titolo-sezione">{{ t.cerca }}</h1>
+
+  <form class="ricerca-campo" role="search" onsubmit="return false;">
+    <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="M20 20l-4-4"/></svg>
+    <input type="search" id="q-pagina" autocomplete="off" autofocus
+           placeholder="{{ t.cerca_placeholder }}"
+           data-vuoto="{{ t.nessun_risultato }}" data-suggerimento="{{ t.altro_termine }}"
+           data-conteggio="{{ t.risultati_conteggio }}">
+    <button type="button" id="pulisci" aria-label="×" hidden>×</button>
+  </form>
+
+  {% if temi %}
+  <div class="ricerca-temi">
+    <span class="temi__label">{{ t.temi }}</span>
+    <div class="temi__list">
+      {% for x in temi %}<button class="chip chip--ricerca" data-tema="{{ x }}">{{ x }}</button>{% endfor %}
+    </div>
+  </div>
+  {% endif %}
+
+  <p class="ricerca-conteggio" id="conteggio" aria-live="polite"></p>
+  <div class="ricerca-esiti" id="esiti"></div>
+</section>
+{% endblock %}

@@ -1,0 +1,142 @@
+<!doctype html>
+<html lang="{{ site.html_lang }}" data-theme="auto">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>{% block title %}{{ site.title }}{% endblock %}</title>
+<meta name="description" content="{% block description %}{{ site.tagline }}{% endblock %}">
+<link rel="canonical" href="{{ site.base_url }}{% block canonical %}{{ site.prefisso }}/{% endblock %}">
+{% block alternative %}
+{% for l in site.lingue %}
+<link rel="alternate" hreflang="{{ l.codice }}" href="{{ site.base_url }}{{ l.url }}">
+{% endfor %}
+{% endblock %}
+<meta property="og:site_name" content="{{ site.title }}">
+<meta property="og:title" content="{% block og_title %}{{ site.title }}{% endblock %}">
+<meta property="og:description" content="{% block og_desc %}{{ site.tagline }}{% endblock %}">
+<meta property="og:type" content="{% block og_type %}website{% endblock %}">
+<meta property="og:locale" content="{{ site.html_lang }}">
+{% block og_image %}{% endblock %}
+<meta name="twitter:card" content="summary_large_image">
+<link rel="alternate" type="application/rss+xml" title="{{ site.title }}" href="{{ site.base_url }}{{ site.prefisso }}/feed.xml">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,600;9..144,700;9..144,900&family=Inter:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&family=Noto+Serif+SC:wght@600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/assets/style.css">
+{% if site.logo %}
+<link rel="icon" type="image/png" sizes="32x32" href="/assets/favicon-32.png">
+<link rel="icon" type="image/png" sizes="16x16" href="/assets/favicon-16.png">
+<link rel="apple-touch-icon" href="/assets/apple-touch-icon.png">
+{% endif %}
+<script>
+  document.documentElement.classList.add('js');
+  window.INDICE_RICERCA = "{{ site.prefisso }}/ricerca.json";
+  try {
+    var t = localStorage.getItem('tema');
+    if (t) document.documentElement.setAttribute('data-theme', t);
+  } catch (e) {}
+</script>
+</head>
+<body>
+<a class="skip" href="#contenuto">{{ t.vai_contenuto }}</a>
+
+<div class="progress" id="progress" hidden></div>
+
+<header class="masthead">
+  <div class="masthead__bar">
+    <div class="wrap masthead__bar-inner">
+      <span class="live"><i></i> {{ t.aggiornato }} {{ site.updated_it }}</span>
+      <div class="masthead__actions">
+        <div class="lingue">
+          <button class="iconbtn" id="apri-lingue" aria-haspopup="true" aria-expanded="false" aria-label="{{ t.lingua }}">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3c2.6 2.6 4 5.7 4 9s-1.4 6.4-4 9c-2.6-2.6-4-5.7-4-9s1.4-6.4 4-9z"/></svg>
+            <span>{{ site.lang|upper }}</span>
+          </button>
+          <div class="lingue__menu" id="menu-lingue" hidden>
+            {% for l in site.lingue %}
+            <a href="{% block lingua_url scoped %}{{ l.url }}{% endblock %}" hreflang="{{ l.codice }}"
+               {% if l.codice == site.lang %}aria-current="true"{% endif %}>{{ l.nome }}</a>
+            {% endfor %}
+          </div>
+        </div>
+        <button class="iconbtn" id="apri-ricerca" aria-label="{{ t.cerca }}">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="M20 20l-4-4"/></svg>
+          <span>{{ t.cerca }}</span>
+        </button>
+        <button class="iconbtn" id="tema" aria-label="Tema">
+          <svg viewBox="0 0 24 24" aria-hidden="true" class="i-sun"><circle cx="12" cy="12" r="4.5"/><path d="M12 2v2M12 20v2M2 12h2M20 12h2M5 5l1.5 1.5M17.5 17.5L19 19M19 5l-1.5 1.5M6.5 17.5L5 19"/></svg>
+          <svg viewBox="0 0 24 24" aria-hidden="true" class="i-moon"><path d="M20 14.5A8 8 0 019.5 4a8.5 8.5 0 1010.5 10.5z"/></svg>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <div class="wrap masthead__brand">
+    {% if site.logo %}
+    <a class="emblema" href="{{ site.prefisso }}/" aria-label="{{ site.title }}">
+      <img src="/assets/logo.jpg" alt="" width="72" height="72">
+    </a>
+    {% endif %}
+    <a class="wordmark" href="{{ site.prefisso }}/">{{ site.title }}</a>
+    {% if site.tagline %}<p class="tagline">{{ site.tagline }}</p>{% endif %}
+  </div>
+
+  <nav class="masthead__nav">
+    <div class="wrap masthead__nav-inner">
+      <a href="{{ site.prefisso }}/">{{ t.homepage }}</a>
+      <a href="{{ site.prefisso }}/archivio.html">{{ t.archivio }}</a>
+      <a href="{{ site.prefisso }}/cerca.html">{{ t.cerca }}</a>
+      <a href="{{ site.prefisso }}/feed.xml">RSS</a>
+      {% if site.telegram_url %}<a href="{{ site.telegram_url }}" class="nav-tg" target="_blank" rel="noopener">{{ t.canale }} ↗</a>{% endif %}
+    </div>
+  </nav>
+</header>
+
+<main id="contenuto">
+{% block content %}{% endblock %}
+</main>
+
+<footer class="footer">
+  <div class="wrap footer__grid">
+    <div>
+      <p class="footer__mark">{% if site.logo %}<img class="footer__logo" src="/assets/logo.jpg" alt="" width="34" height="34">{% endif %}{{ site.title }}</p>
+      {% if site.footer %}<p class="footer__note">{{ site.footer }}</p>{% endif %}
+    </div>
+    <div class="footer__lingue">
+      <span>{{ t.lingua }}</span>
+      <div>
+        {% for l in site.lingue %}
+        <a href="{{ l.url }}" hreflang="{{ l.codice }}" {% if l.codice == site.lang %}class="attiva"{% endif %}>{{ l.nome }}</a>
+        {% endfor %}
+      </div>
+    </div>
+    <div class="footer__links">
+      <a href="{{ site.prefisso }}/">{{ t.homepage }}</a>
+      <a href="{{ site.prefisso }}/archivio.html">{{ t.archivio }}</a>
+      <a href="{{ site.prefisso }}/cerca.html">{{ t.cerca }}</a>
+      <a href="{{ site.prefisso }}/feed.xml">RSS</a>
+      {% if site.telegram_url %}<a href="{{ site.telegram_url }}" target="_blank" rel="noopener">Telegram</a>{% endif %}
+    </div>
+  </div>
+  <div class="wrap footer__bottom">
+    <span>© {{ site.anno }} {{ site.title }}</span>
+    <span>{{ t.ultimo_aggiornamento }} {{ site.updated_it }}</span>
+  </div>
+</footer>
+
+<div class="overlay" id="ricerca" hidden>
+  <div class="overlay__panel" role="dialog" aria-modal="true" aria-label="{{ t.cerca }}">
+    <div class="overlay__field">
+      <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="M20 20l-4-4"/></svg>
+      <input type="search" id="q" placeholder="{{ t.cerca_placeholder }}" autocomplete="off"
+             data-vuoto="{{ t.nessun_risultato }}" data-suggerimento="{{ t.altro_termine }}">
+      <button class="iconbtn" id="chiudi-ricerca" aria-label="Esc">Esc</button>
+    </div>
+    <div class="overlay__results" id="risultati"></div>
+    <a class="overlay__tutti" href="{{ site.prefisso }}/cerca.html" id="tutti-risultati">{{ t.cerca }} →</a>
+  </div>
+</div>
+
+<script src="/assets/app.js" defer></script>
+</body>
+</html>

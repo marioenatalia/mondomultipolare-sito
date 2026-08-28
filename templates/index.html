@@ -1,0 +1,115 @@
+{% extends "base.html" %}
+{% block title %}{{ site.title }}{% if page > 1 %} — {{ t.pagina|replace('{n}', page)|replace('{tot}', pages) }}{% endif %}{% endblock %}
+{% block canonical %}{% if page > 1 %}{{ site.prefisso }}/pagina/{{ page }}/{% else %}{{ site.prefisso }}/{% endif %}{% endblock %}
+
+{% block content %}
+{% set apertura = posts[0] if posts else none %}
+{% set secondari = posts[1:4] %}
+{% set resto = posts[4:] %}
+
+{% if apertura %}
+<section class="lead wrap" data-reveal>
+  <article class="lead__story">
+    {% if apertura.cover %}
+    <a class="lead__media" href="{{ apertura.url }}">
+      <img src="/{{ apertura.cover.path }}" alt="{{ apertura.title }}" loading="eager">
+    </a>
+    {% endif %}
+    <div class="lead__text">
+      <div class="kicker">
+        {% if apertura.temi %}<span class="kicker__tema">{{ apertura.temi[0] }}</span>{% endif %}
+        <span>{{ apertura.date_it }} · {{ apertura.time_it }}</span>
+      </div>
+      <h1 class="lead__title"><a href="{{ apertura.url }}">{{ apertura.title }}</a></h1>
+      {% if apertura.excerpt %}<p class="lead__excerpt">{{ apertura.excerpt }}</p>{% endif %}
+      <a class="readmore" href="{{ apertura.url }}">{{ t.leggi }}<span></span></a>
+    </div>
+  </article>
+
+  <aside class="ticker">
+    <h2 class="rubrica">{{ t.ultime }}</h2>
+    <ol class="ticker__list">
+      {% for p in latest %}
+      <li>
+        <a href="{{ p.url }}">
+          <time>{{ p.time_it }}</time>
+          <span>{{ p.title }}</span>
+        </a>
+      </li>
+      {% endfor %}
+    </ol>
+    {% if site.telegram_url %}
+    <a class="ticker__cta" href="{{ site.telegram_url }}" target="_blank" rel="noopener">{{ t.segui_canale }} ↗</a>
+    {% endif %}
+  </aside>
+</section>
+{% endif %}
+
+{% if secondari %}
+<section class="wrap trittico" data-reveal>
+  {% for p in secondari %}
+  <article class="card">
+    {% if p.cover %}
+    <a class="card__media" href="{{ p.url }}"><img src="/{{ p.cover.thumb or p.cover.path }}" alt="{{ p.title }}" loading="lazy"></a>
+    {% endif %}
+    <div class="kicker">
+      {% if p.temi %}<span class="kicker__tema">{{ p.temi[0] }}</span>{% endif %}
+      <span>{{ p.date_it }}</span>
+    </div>
+    <h3 class="card__title"><a href="{{ p.url }}">{{ p.title }}</a></h3>
+    {% if p.excerpt %}<p class="card__excerpt">{{ p.excerpt }}</p>{% endif %}
+  </article>
+  {% endfor %}
+</section>
+{% endif %}
+
+{% if temi %}
+<section class="wrap temi" data-reveal>
+  <span class="temi__label">{{ t.temi }}</span>
+  <div class="temi__list">
+    {% for x in temi %}<button class="chip" data-tema="{{ x }}">{{ x }}</button>{% endfor %}
+  </div>
+</section>
+{% endif %}
+
+{% if resto %}
+<section class="wrap flusso" data-reveal>
+  <h2 class="rubrica rubrica--wide">{{ t.dal_mondo }}</h2>
+  <div class="flusso__list">
+    {% for p in resto %}
+    <article class="riga" data-temi="{{ p.temi|join(',') }}">
+      <div class="riga__meta">
+        <time datetime="{{ p.iso }}">{{ p.date_it }}</time>
+        <span>{{ p.time_it }}</span>
+      </div>
+      <div class="riga__body">
+        {% if p.temi %}<div class="kicker"><span class="kicker__tema">{{ p.temi[0] }}</span></div>{% endif %}
+        <h3><a href="{{ p.url }}">{{ p.title }}</a></h3>
+        {% if p.excerpt %}<p>{{ p.excerpt }}</p>{% endif %}
+      </div>
+      {% if p.cover %}
+      <a class="riga__media" href="{{ p.url }}"><img src="/{{ p.cover.thumb or p.cover.path }}" alt="{{ p.title }}" loading="lazy"></a>
+      {% endif %}
+    </article>
+    {% endfor %}
+  </div>
+</section>
+{% endif %}
+
+{% if not posts %}
+<section class="wrap vuoto">
+  <h2>{{ t.vuoto_titolo }}</h2>
+  <p>{{ t.vuoto_testo }}</p>
+</section>
+{% endif %}
+
+{% if pages > 1 %}
+<nav class="wrap paginazione">
+  {% if page > 1 %}
+  <a href="{% if page == 2 %}{{ site.prefisso }}/{% else %}{{ site.prefisso }}/pagina/{{ page - 1 }}/{% endif %}">← {{ t.piu_recenti }}</a>
+  {% else %}<span></span>{% endif %}
+  <span class="paginazione__stato">{{ t.pagina|replace('{n}', page)|replace('{tot}', pages) }}</span>
+  {% if page < pages %}<a href="{{ site.prefisso }}/pagina/{{ page + 1 }}/">{{ t.piu_vecchi }} →</a>{% else %}<span></span>{% endif %}
+</nav>
+{% endif %}
+{% endblock %}

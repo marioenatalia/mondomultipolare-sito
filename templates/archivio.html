@@ -1,0 +1,26 @@
+{% extends "base.html" %}
+{% block title %}{{ t.archivio }} — {{ site.title }}{% endblock %}
+{% block canonical %}{{ site.prefisso }}/archivio.html{% endblock %}
+
+{% block content %}
+<section class="wrap archivio" data-reveal>
+  <h1 class="titolo-sezione">{{ t.archivio }}</h1>
+  <p class="sottotitolo">{{ t.archivio_conteggio|replace('{n}', posts|length) }}</p>
+
+  {% set ns = namespace(mese='') %}
+  <div class="archivio__list">
+    {% for p in posts %}
+      {% set etichetta = p.date.strftime('%m/%Y') %}
+      {% if etichetta != ns.mese %}
+        {% set ns.mese = etichetta %}
+        <h2 class="archivio__mese">{{ p.mese_it }}</h2>
+      {% endif %}
+      <a class="archivio__riga" href="{{ p.url }}">
+        <time datetime="{{ p.iso }}">{{ '%02d'|format(p.date.day) }}</time>
+        <span class="archivio__titolo">{{ p.title }}</span>
+        {% if p.temi %}<span class="archivio__tema">{{ p.temi[0] }}</span>{% endif %}
+      </a>
+    {% endfor %}
+  </div>
+</section>
+{% endblock %}

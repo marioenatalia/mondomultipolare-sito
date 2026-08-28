@@ -1,0 +1,121 @@
+# ---------------------------------------------------------------
+# Configurazione del sito e del canale Telegram
+# Copia questo file in config.yaml e modificalo.
+# ---------------------------------------------------------------
+
+telegram:
+  # @username del canale (senza https://t.me/) oppure ID numerico -100...
+  channel: "@mondomultipolare"
+  # Quanti messaggi recuperare al primo avvio (backfill storico).
+  # Metti 0 per prendere solo i nuovi post da ora in avanti.
+  backfill_limit: 300
+  # Scarica foto/video/documenti allegati ai post
+  download_media: true
+  # Dimensione massima di un singolo file scaricato (MB). 0 = nessun limite.
+  max_media_mb: 50
+
+# ---------------------------------------------------------------
+# Foto e video: vengono scaricati e ripubblicati sul sito.
+# L'ottimizzazione richiede Pillow (pip install Pillow); senza,
+# le immagini restano alla risoluzione originale.
+# ---------------------------------------------------------------
+media:
+  ottimizza: true
+  larghezza_massima: 1600     # lato lungo delle foto negli articoli
+  larghezza_miniatura: 800    # versione usata nelle anteprime di homepage
+  qualita: 82
+
+site:
+  title: "Mondo Multipolare"
+  tagline: "Notizie e analisi da un mondo che cambia equilibri"
+  # URL finale del sito, serve per feed RSS e sitemap (senza slash finale)
+  base_url: "https://www.mondomultipolare.it"
+  language: "it"
+  # Testo mostrato in fondo a ogni pagina
+  footer: "Tutti i contenuti provengono dal canale Telegram Mondo Multipolare."
+  # Link al canale mostrato nell'header (vuoto per nasconderlo)
+  telegram_url: "https://t.me/mondomultipolare"
+  # Logo della testata: l'immagine del canale Telegram, scaricata con `python run.py logo`.
+  # false = solo il logotipo tipografico
+  logo: true
+  posts_per_page: 12
+  # Mostra "Fonte: Telegram" con link al post originale
+  show_source_link: true
+
+# ---------------------------------------------------------------
+# Lingue del sito. L'italiano è la lingua sorgente (i post del canale);
+# le altre vengono tradotte automaticamente e vivono in sottocartella:
+# /en/ /ru/ /zh/ /es/ /fr/ /de/
+# La chiave per la traduzione va in .env: ANTHROPIC_API_KEY
+# ---------------------------------------------------------------
+lingue:
+  sorgente: "it"
+  attive: ["it", "en", "ru", "zh", "es", "fr", "de"]
+  # modello usato per tradurre (modificabile se ne esce uno nuovo)
+  modello: "claude-sonnet-4-5"
+
+# ---------------------------------------------------------------
+# Testate e canali da cui riprendi contenuti.
+# Il sistema riconosce la provenienza in due modi: dal repost Telegram
+# (canale inoltrato) e dai link presenti nel testo.
+# etichetta: pubblicato_in_origine | in_collaborazione | ripreso_da
+# ---------------------------------------------------------------
+fonti:
+  etichetta_predefinita: "ripreso_da"
+  partner:
+    - nome: "L'AntiDiplomatico"
+      sito: "https://www.lantidiplomatico.it"
+      telegram: "lantidiplomatico"
+      etichetta: "pubblicato_in_origine"
+
+publishing:
+  # draft  = i nuovi post finiscono in bozza, li approvi tu prima della pubblicazione
+  # auto   = tutto quello che arriva dal canale viene pubblicato subito
+  mode: "auto"
+  # Non pubblicare i post che contengono una di queste parole (case-insensitive)
+  blocklist: []
+  # Se valorizzato, pubblica SOLO i post che contengono una di queste parole
+  allowlist: []
+  # Ignora i post più corti di N caratteri (utile per scartare i "solo emoji")
+  min_length: 0
+
+# ---------------------------------------------------------------
+# Archivio dei contenuti.
+#   sqlite   = file locale data/canale.sqlite3 (nessuna configurazione)
+#   postgres = database gestito, es. Neon: stringa in .env (DATABASE_URL)
+# ---------------------------------------------------------------
+database:
+  tipo: "postgres"
+
+paths:
+  database: "data/canale.sqlite3"
+  media: "public/media"
+  output: "public"
+
+# ---------------------------------------------------------------
+# Pubblicazione automatica sullo spazio web (opzionale)
+# Utente e password vanno nel file .env: FTP_USER e FTP_PASSWORD
+# ---------------------------------------------------------------
+deploy:
+  # nessuno = il sito resta solo in public/ (lo serve direttamente il tuo web server)
+  # locale  = copia in una cartella dello stesso computer/NAS servita da nginx o Web Station
+  # rsync   = sincronizza via SSH su un tuo server (serve rsync + chiave SSH)
+  # ftp/ftps = caricamento su uno spazio web di terzi
+  tipo: "ftps"
+
+  # per tipo "ftp"/"ftps": spazio web Aruba, credenziali in .env
+  host: "ftp.mondomultipolare.it"
+  porta: 21
+  cartella_remota: "/www"
+
+  # per tipo "locale": percorso servito da un web server tuo
+  # cartella_remota: "/var/www/mondomultipolare"
+
+  # per tipo "rsync": server di destinazione
+  # host: "192.168.1.10"
+  # utente: "mario"
+  # porta_ssh: 22
+  # chiave_ssh: "~/.ssh/id_ed25519"
+  # cartella_remota: "/var/www/mondomultipolare"
+
+  # credenziali FTP: FTP_USER e FTP_PASSWORD nel file .env

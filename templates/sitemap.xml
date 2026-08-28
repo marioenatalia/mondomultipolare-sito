@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9" xmlns:xhtml="http://www.w3.org/1999/xhtml">
+  {% for p in pagine %}
+  <url>
+    <loc>{{ site.base_url }}{{ p.url }}</loc>
+    <lastmod>{{ p.lastmod }}</lastmod>
+    <changefreq>hourly</changefreq>
+    <priority>1.0</priority>
+  </url>
+  {% endfor %}
+  {% for p in posts %}
+  <url>
+    <loc>{{ site.base_url }}{{ p.url }}</loc>
+    <lastmod>{{ p.iso }}</lastmod>
+    <changefreq>weekly</changefreq>
+    {% for codice, indirizzo in p.alternative.items() %}
+    <xhtml:link rel="alternate" hreflang="{{ codice }}" href="{{ site.base_url }}{{ indirizzo }}"/>
+    {% endfor %}
+  </url>
+  {% endfor %}
+</urlset>

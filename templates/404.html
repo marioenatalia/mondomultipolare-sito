@@ -1,0 +1,15 @@
+{% extends "base.html" %}
+{% block title %}404 — {{ site.title }}{% endblock %}
+{% block canonical %}{{ site.prefisso }}/404.html{% endblock %}
+
+{% block content %}
+<section class="wrap vuoto">
+  <p class="kicker kicker--center"><span class="kicker__tema">404</span></p>
+  <h2>{{ t.pagina_assente }}</h2>
+  <p>{{ t.pagina_assente_testo }}</p>
+  <p class="paginazione">
+    <a href="{{ site.prefisso }}/">← {{ t.homepage }}</a>
+    <a href="{{ site.prefisso }}/cerca.html">{{ t.cerca }} →</a>
+  </p>
+</section>
+{% endblock %}

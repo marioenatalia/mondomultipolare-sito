@@ -1,0 +1,44 @@
+# ============================================================
+#  Mondo Multipolare — configurazione del server web (Apache)
+#  Generato automaticamente: le modifiche a mano vanno perse.
+# ============================================================
+
+# La testata è un sito statico: index.html ha la precedenza su index.php
+DirectoryIndex index.html index.php
+
+# niente elenco dei file nelle cartelle senza indice
+Options -Indexes
+
+ErrorDocument 404 /404.html
+
+<IfModule mod_rewrite.c>
+  RewriteEngine On
+  # tutto su https
+  RewriteCond %{HTTPS} !=on
+  RewriteRule ^(.*)$ https://%{HTTP_HOST}/$1 [R=301,L]
+</IfModule>
+
+<IfModule mod_deflate.c>
+  AddOutputFilterByType DEFLATE text/html text/css application/javascript application/json application/rss+xml image/svg+xml text/xml
+</IfModule>
+
+<IfModule mod_expires.c>
+  ExpiresActive On
+  # le pagine cambiano a ogni pubblicazione: cache breve
+  ExpiresByType text/html "access plus 5 minutes"
+  ExpiresByType application/rss+xml "access plus 10 minutes"
+  # immagini, video e fogli di stile non cambiano mai nome: cache lunga
+  ExpiresByType image/jpeg "access plus 1 month"
+  ExpiresByType image/png "access plus 1 month"
+  ExpiresByType image/webp "access plus 1 month"
+  ExpiresByType video/mp4 "access plus 1 month"
+  ExpiresByType text/css "access plus 7 days"
+  ExpiresByType application/javascript "access plus 7 days"
+</IfModule>
+
+<IfModule mod_headers.c>
+  Header set X-Content-Type-Options "nosniff"
+  Header set Referrer-Policy "strict-origin-when-cross-origin"
+</IfModule>
+
+AddDefaultCharset UTF-8
